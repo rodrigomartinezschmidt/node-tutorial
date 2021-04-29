@@ -1,17 +1,36 @@
 const express = require('express')
-const path = require('path')
-
 const app = express()
+let { people } = require('./data')
 
-app.use(express.static('./public'))
+app.use(express.static('./methods-public'))
 
-// app.get('/', (req, res) => {
-//   res.sendFile(path.resolve(__dirname, './navbar-app/index.html'))
-// })
+app.use(express.urlencoded({ extended: false }))
 
-app.all('*', (req, res) => {
-  res.status(404).send('resource not found')
+app.use(express.json())
+
+app.get('/api/people', (req, res) => {
+  res.status(200).json({ success: true, data: people })
 })
-app.listen(5000, (req, res) => {
+
+app.post('/api/people', (req, res) => {
+  const { name } = req.body
+  if (!name) {
+    return res
+      .status(401)
+      .json({ success: false, msg: 'please provide name value' })
+  }
+  res.status(201).json({ success: true, person: name })
+})
+
+app.post('/login', (req, res) => {
+  const { name } = req.body
+  if (name) {
+    return res.status(200).send(`Welcome ${name}`)
+  }
+
+  res.status(401).send('Please Provide Credentials')
+})
+
+app.listen(5000, () => {
   console.log('server is listening on port 5000...')
 })
